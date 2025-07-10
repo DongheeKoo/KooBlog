@@ -1,0 +1,48 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      SERVICE_NAME: koo-blog-api
+  
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set STAGE environment variable
+        run: |
+          echo "IMAGE_NAME=${{ env.SERVICE_NAME }}" >> $GITHUB_ENV
+    
+      - name: Build and Test
+        run: |
+          ./gradlew build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::122976268003:role/github-actions
+          aws-region: ap-northeast-2
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: "true"
+
+      - name: Build and Push Container Image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          SHA_SHORT=$(git rev-parse --short HEAD)
+          echo "IMAGE_TAG=$SHA_SHORT" >> $GITHUB_ENV
+          docker build -t $REGISTRY/$IMAGE_NAME:$SHA_SHORT .
+          docker push $REGISTRY/$IMAGE_NAME:$SHA_SHORT
