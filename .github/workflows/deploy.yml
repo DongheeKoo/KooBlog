@@ -75,8 +75,7 @@ jobs:
 
       - name: Configure kubectl for EKS
         run: |
-          aws sts get-caller-identity
-          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ap-northeast-2 --role-arn arn:aws:iam::122976268003:role/github-actions
+          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ap-northeast-2
 
       - name: Install or Upgrade Helm Chart
         run: |
