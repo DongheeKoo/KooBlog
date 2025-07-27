@@ -80,6 +80,12 @@ jobs:
       - name: Install or Upgrade Helm Chart
         run: |
           cd KooBlogHelm
+
+          if ! kubectl get namespace ${{ env.EKS_NAMESPACE }} &> /dev/null; then
+            kubectl create namespace ${{ env.EKS_NAMESPACE }}
+          else
+            echo "Namespace ${{ env.EKS_NAMESPACE }} already exists"
+          fi
           
           if helm list -n ${{ env.EKS_NAMESPACE }} | grep -q ${{ env.SERVICE_NAME }}; then
             helm upgrade ${{ env.SERVICE_NAME }} ./app \
