@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SERVICE_NAME: koo-blog-api
-      EKS_CLUSTER_NAME: koo-blog-cluster
+      EKS_CLUSTER_NAME: koo-blog-eks
       EKS_NAMESPACE: koo-blog
   
     steps:
