@@ -10,4 +10,4 @@ class HelloController {
     fun hello(): Map<String, String> {
         return mapOf("key" to "hello")
     }
-} 
+}
