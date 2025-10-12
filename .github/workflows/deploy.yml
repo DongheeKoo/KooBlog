@@ -75,7 +75,15 @@ jobs:
 
       - name: Configure kubectl for EKS
         run: |
+          echo "Configuring kubectl for EKS cluster: ${{ env.EKS_CLUSTER_NAME }}"
           aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ap-northeast-2
+          
+          echo "Verifying kubectl connection..."
+          kubectl version --short || true
+          kubectl cluster-info || true
+          
+          echo "Testing cluster access..."
+          kubectl get nodes
 
       - name: Install or Upgrade Helm Chart
         run: |
@@ -90,7 +98,7 @@ jobs:
           if helm list -n ${{ env.EKS_NAMESPACE }} | grep -q ${{ env.SERVICE_NAME }}; then
             helm upgrade ${{ env.SERVICE_NAME }} ./app \
               --values values/${{ env.SERVICE_NAME }}/values.yaml \
-              --namespace koo-blog \
+              --namespace ${{ env.EKS_NAMESPACE }} \
               --wait \
               --timeout=5m \
               --atomic
